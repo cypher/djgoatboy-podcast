@@ -27,8 +27,8 @@ begin
   feed = SimpleRSS.parse( open(DJGOATBOY_FEED) )
 
   builder = Builder::XmlMarkup.new
-
   builder.instruct!
+  # There's gotta be a better way than this
   podcast = builder.rss("version" => "2.0") { |rss|
     rss.channel { |channel|
       channel.title feed.title.gsub(/Twitter \/ /, '')
@@ -37,19 +37,22 @@ begin
 
       feed.entries.each do |entry|
         if entry.content =~ %r{(http://tinyurl\.com/[a-zA-Z0-9]+)}
-          channel.item {|item|
-            item.title entry.title
-            item.link entry.link
-            item.description entry.content
+          url = untinyurl(entry.content)
 
-
-            url = untinyurl(entry.content)
+          # Make sure we're getting a mp3
+          if url =~ /\.mp3$/
             length = mp3_length(url)
 
-            # Right now, we'll trust giles to only release mp3s
-            item.enclosure("url" => url, "length" => length, "type" => "audio/mpeg")
-            item.pubDate entry.published
-          }
+            channel.item {|item|
+              item.title entry.title
+              item.link entry.link
+              item.description entry.content
+
+              # Right now, we'll trust giles to only release mp3s
+              item.enclosure("url" => url, "length" => length, "type" => "audio/mpeg")
+              item.pubDate entry.published
+            }
+          end
         end
       end
     }
