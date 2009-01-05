@@ -1,5 +1,7 @@
 A dead simple podcast feed generator for http://twitter.com/djgoatboy
 
+The feed can currently be found at http://nuclearsquid.com/djgoatboy.rss
+
 Giles has been posting mp3s each day to his @djgoatboy-account. I wanted to listen to them as normal podcasts, thus this project.
 
 There is no iTunes-specific support (yet).
