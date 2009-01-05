@@ -1,3 +1,4 @@
+#!/usr/local/bin/ruby
 require 'rubygems'
 require 'simple-rss'
 require 'open-uri'
