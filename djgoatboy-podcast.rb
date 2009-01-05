@@ -21,6 +21,8 @@ def mp3_length(url)
 end
 
 DJGOATBOY_FEED = 'http://twitter.com/statuses/user_timeline/17939483.atom'
+PODCAST_FILE = File.expand_path("~/www/nuclearsquid.com/djgoatboy.rss")
+
 begin
   feed = SimpleRSS.parse( open(DJGOATBOY_FEED) )
 
@@ -53,7 +55,7 @@ begin
     }
   }
 
-  File.open("podcast.rss", 'w+') do |f|
+  File.open(PODCAST_FILE, 'w+') do |f|
     f.write( podcast )
   end
 rescue OpenURI::HTTPError
