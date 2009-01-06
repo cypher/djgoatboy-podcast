@@ -45,9 +45,15 @@ begin
             length = mp3_length(url)
 
             channel.item {|item|
-              item.title entry.title
+              item.title "@djgoatboy / #{Time.now.strftime("%d-%m-%Y")}"
               item.link entry.link
-              item.description entry.content
+
+              description = entry.content.gsub(%r{\s*http://tinyurl\.com/[a-zA-Z0-9]+\s*}, '').gsub(%r{djgoatboy:\s*}, '')
+              if description.empty?
+                item.description "(no description)"
+              else
+                item.description description
+              end
 
               # Right now, we'll trust giles to only release mp3s
               item.enclosure("url" => url, "length" => length, "type" => "audio/mpeg")
