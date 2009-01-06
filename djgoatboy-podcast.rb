@@ -32,7 +32,7 @@ begin
   # There's gotta be a better way than this
   podcast = builder.rss("version" => "2.0") { |rss|
     rss.channel { |channel|
-      channel.title feed.title.gsub(/Twitter \/ /, '')
+      channel.title "@djgoatboy's daily mp3 feed"
       channel.link feed.link
       channel.language 'en-US'
 
