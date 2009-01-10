@@ -4,9 +4,14 @@ require 'simple-rss'
 require 'open-uri'
 require 'builder'
 
+TINYURLS_YAML = File.join(File.dirname(__FILE__), 'tinyurls.yml')
+TINYURLS = YAML.load_file(TINYURLS_YAML) rescue {}
+
 def untinyurl(str)
   if str =~ %r{(http://tinyurl\.com/[a-zA-Z0-9]+)}
-    Net::HTTP.get_response( URI.parse($1) )["location"]
+    return TINYURLS[$1] if TINYURLS[$1]
+
+    TINYURLS[$1] = Net::HTTP.get_response( URI.parse($1) )["location"]
   else
     nil
   end
@@ -68,6 +73,11 @@ begin
   File.open(PODCAST_FILE, 'w+') do |f|
     f.write( podcast )
   end
+
+  File.open(TINYURLS_YAML, 'w+') do |f|
+    f << YAML.dump(TINYURLS)
+  end
+
 rescue OpenURI::HTTPError
   # Don't do anything, just write to stderr
   $stderr.puts "Failed to open atom feed"
