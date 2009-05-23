@@ -7,8 +7,10 @@ require 'builder'
 TINYURLS_YAML = File.join(File.dirname(__FILE__), 'tinyurls.yml')
 TINYURLS = YAML.load_file(TINYURLS_YAML) rescue {}
 
+URL_REGEX = %r{(http://(?:tinyurl\.com|bit\.ly)/[a-zA-Z0-9]+)}
+
 def untinyurl(str)
-  if str =~ %r{(http://(?:tinyurl\.com|bit\.ly)/[a-zA-Z0-9]+)}
+  if str =~ URL_REGEX
     return TINYURLS[$1] if TINYURLS[$1]
 
     TINYURLS[$1] = Net::HTTP.get_response( URI.parse($1) )["location"]
@@ -43,7 +45,7 @@ begin
         channel.language 'en-US'
 
         feed.entries.each do |entry|
-          if entry.content =~ %r{(http://tinyurl\.com/[a-zA-Z0-9]+)}
+          if entry.content =~ URL_REGEX
             url = untinyurl(entry.content)
 
             # Make sure we're getting a mp3
@@ -54,7 +56,7 @@ begin
                 item.title "@djgoatboy / #{Time.now.strftime("%d-%m-%Y")}"
                 item.link entry.link
 
-                description = entry.content.gsub(%r{\s*http://tinyurl\.com/[a-zA-Z0-9]+\s*}, '').gsub(%r{djgoatboy:\s*}, '')
+                description = entry.content.gsub(%r{\s*#{URL_REGEX}\s*}, '').gsub(%r{djgoatboy:\s*}, '')
                 if description.empty?
                   item.description "(no description)"
                 else
