@@ -8,7 +8,7 @@ TINYURLS_YAML = File.join(File.dirname(__FILE__), 'tinyurls.yml')
 TINYURLS = YAML.load_file(TINYURLS_YAML) rescue {}
 
 def untinyurl(str)
-  if str =~ %r{(http://(tinyurl\.com|bit\.ly)/[a-zA-Z0-9]+)}
+  if str =~ %r{(http://(?:tinyurl\.com|bit\.ly)/[a-zA-Z0-9]+)}
     return TINYURLS[$1] if TINYURLS[$1]
 
     TINYURLS[$1] = Net::HTTP.get_response( URI.parse($1) )["location"]
