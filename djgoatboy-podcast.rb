@@ -3,6 +3,7 @@ require 'rubygems'
 require 'simple-rss'
 require 'open-uri'
 require 'builder'
+require 'fileutils'
 
 TINYURLS_YAML = File.join(File.dirname(__FILE__), 'tinyurls.yml')
 TINYURLS = YAML.load_file(TINYURLS_YAML) rescue {}
@@ -34,7 +35,7 @@ PODCAST_FILE = File.expand_path("~/www/nuclearsquid.com/djgoatboy.rss")
 begin
   feed = SimpleRSS.parse( open(DJGOATBOY_FEED) ) # rescue SocketError
 
-  File.open(PODCAST_FILE, 'w+') do |file|
+  File.open(PODCAST_FILE + '.new', 'w+') do |file|
     builder = Builder::XmlMarkup.new(:target => file, :indent => 4)
     builder.instruct!
     # There's gotta be a better way than this
@@ -73,6 +74,8 @@ begin
       }
     }
   end
+
+  FileUtils.mv( PODCAST_FILE + '.new', PODCAST_FILE )
 
   File.open(TINYURLS_YAML, 'w+') do |f|
     f << YAML.dump(TINYURLS)
