@@ -57,7 +57,7 @@ begin
               length = mp3_length(url)
 
               channel.item {|item|
-                item.title "@djgoatboy / #{tweet.created_at.strftime("%d-%m-%Y")}"
+                item.title "@djgoatboy / #{Time.parse(tweet.created_at).strftime("%d-%m-%Y")}"
                 item.link "http://twitter.com/djgoatboy/status/#{tweet.id}"
 
                 description = tweet.text.gsub(%r{\s*#{URL_REGEX}\s*}, '').gsub(%r{djgoatboy:\s*}, '')
