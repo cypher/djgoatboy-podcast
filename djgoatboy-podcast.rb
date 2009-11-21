@@ -1,7 +1,7 @@
 #!/usr/local/bin/ruby
 require 'rubygems'
-require 'simple-rss'
-require 'open-uri'
+gem 'twitter'
+require 'twitter'
 require 'builder'
 require 'fileutils'
 
@@ -29,11 +29,14 @@ def mp3_length(url)
   resp["content-length"]
 end
 
-DJGOATBOY_FEED = 'http://twitter.com/statuses/user_timeline/17939483.atom'
 PODCAST_FILE = File.expand_path("~/www/nuclearsquid.com/djgoatboy.rss")
 
 begin
-  feed = SimpleRSS.parse( open(DJGOATBOY_FEED) ) # rescue SocketError
+  config = YAML.load_file(File.expand_path("~/.twitter_config.yml"))
+  httpauth = Twitter::HTTPAuth.new(config['username'], config['password'])
+
+  client = Twitter::Base.new(httpauth)
+  tweets = client.user_timeline(:id => "djgoatboy")
 
   File.open(PODCAST_FILE + '.new', 'w+') do |file|
     builder = Builder::XmlMarkup.new(:target => file, :indent => 4)
@@ -42,12 +45,12 @@ begin
     podcast = builder.rss("version" => "2.0") { |rss|
       rss.channel { |channel|
         channel.title "@djgoatboy's daily mp3 feed"
-        channel.link feed.link
+        channel.link "http://twitter.com/djgoatboy"
         channel.language 'en-US'
 
-        feed.entries.each do |entry|
-          if entry.content =~ URL_REGEX
-            url = untinyurl(entry.content)
+        tweets.each do |tweet|
+          if tweet.text =~ URL_REGEX
+            url = untinyurl(tweet.text)
 
             # Make sure we're getting a mp3
             if url =~ /\.mp3$/
@@ -55,9 +58,10 @@ begin
 
               channel.item {|item|
                 item.title "@djgoatboy / #{Time.now.strftime("%d-%m-%Y")}"
-                item.link entry.link
+                item.link "http://twitter.com/djgoatboy/status/#{tweet.id}"
 
-                description = entry.content.gsub(%r{\s*#{URL_REGEX}\s*}, '').gsub(%r{djgoatboy:\s*}, '')
+                description = tweet.text.gsub(%r{\s*#{URL_REGEX}\s*}, '').gsub(%r{djgoatboy:\s*}, '')
+
                 if description.empty?
                   item.description "(no description)"
                 else
@@ -66,7 +70,7 @@ begin
 
                 # Right now, we'll trust giles to only release mp3s
                 item.enclosure("url" => url, "length" => length, "type" => "audio/mpeg")
-                item.pubDate entry.published
+                item.pubDate tweet.created_at
               }
             end
           end
@@ -80,9 +84,4 @@ begin
   File.open(TINYURLS_YAML, 'w+') do |f|
     f << YAML.dump(TINYURLS)
   end
-
-rescue OpenURI::HTTPError
-  # Don't do anything, just write to stderr
-  $stderr.puts "Failed to open atom feed"
 end
-
