@@ -8,7 +8,7 @@ require 'fileutils'
 TINYURLS_YAML = File.join(File.dirname(__FILE__), 'tinyurls.yml')
 TINYURLS = YAML.load_file(TINYURLS_YAML) rescue {}
 
-URL_REGEX = %r{(http://(?:tinyurl\.com|bit\.ly)/[a-zA-Z0-9]+)}
+URL_REGEX = %r{(http://(?:tinyurl\.com|bit\.ly|jm\.p)/[a-zA-Z0-9]+)}
 
 def untinyurl(str)
   if str =~ URL_REGEX
