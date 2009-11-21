@@ -44,7 +44,7 @@ begin
     # There's gotta be a better way than this
     podcast = builder.rss("version" => "2.0") { |rss|
       rss.channel { |channel|
-        channel.title "@djgoatboy's daily mp3 feed"
+        channel.title "@djgoatboy's mp3 feed"
         channel.link "http://twitter.com/djgoatboy"
         channel.language 'en-US'
 
