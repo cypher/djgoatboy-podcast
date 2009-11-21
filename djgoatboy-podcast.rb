@@ -8,15 +8,16 @@ require 'fileutils'
 TINYURLS_YAML = File.join(File.dirname(__FILE__), 'tinyurls.yml')
 TINYURLS = YAML.load_file(TINYURLS_YAML) rescue {}
 
-URL_REGEX = %r{(http://(?:tinyurl\.com|bit\.ly|jm\.p)/[a-zA-Z0-9]+)}
+TINYURL_REGEX = %r{(http://(?:tinyurl\.com|bit\.ly|jm\.p)/[a-zA-Z0-9]+)}
+HTTP_REGEX = URI.regexp(%w(http))
 
-def untinyurl(str)
-  if str =~ URL_REGEX
+def untinyurl(url)
+  if url =~ TINYURL_REGEX
     return TINYURLS[$1] if TINYURLS[$1]
 
     TINYURLS[$1] = Net::HTTP.get_response( URI.parse($1) )["location"]
   else
-    nil
+    url
   end
 end
 
@@ -49,8 +50,8 @@ begin
         channel.language 'en-US'
 
         tweets.each do |tweet|
-          if tweet.text =~ URL_REGEX
-            url = untinyurl(tweet.text)
+          if tweet.text =~ HTTP_REGEX
+            url = untinyurl(tweet.text.slice(HTTP_REGEX))
 
             # Make sure we're getting a mp3
             if url =~ /\.mp3$/
@@ -60,7 +61,7 @@ begin
                 item.title "@djgoatboy / #{Time.parse(tweet.created_at).strftime("%d-%m-%Y")}"
                 item.link "http://twitter.com/djgoatboy/status/#{tweet.id}"
 
-                description = tweet.text.gsub(%r{\s*#{URL_REGEX}\s*}, '').gsub(%r{djgoatboy:\s*}, '')
+                description = tweet.text.gsub(%r{\s*#{HTTP_REGEX}\s*}, '')
 
                 if description.empty?
                   item.description "(no description)"
