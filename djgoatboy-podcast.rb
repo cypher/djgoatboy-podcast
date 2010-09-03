@@ -34,7 +34,8 @@ PODCAST_FILE = File.expand_path("~/www/nuclearsquid.com/djgoatboy.rss")
 
 begin
   config = YAML.load_file(File.expand_path("~/.twitter_config.yml"))
-  httpauth = Twitter::HTTPAuth.new(config['username'], config['password'])
+  # Use SuperTweet.Net to get to twitter via Basic Auth
+  httpauth = Twitter::HTTPAuth.new config['user'], config['password'], :api_endpoint => 'api.supertweet.net' #, :ssl => true
 
   client = Twitter::Base.new(httpauth)
   tweets = client.user_timeline(:id => "djgoatboy")
