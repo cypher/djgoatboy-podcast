@@ -30,7 +30,7 @@ def mp3_length(url)
   resp["content-length"]
 end
 
-PODCAST_FILE = File.expand_path("./djgoatboy.rss")
+PODCAST_FILE = File.expand_path("~/www/nuclearsquid.com/djgoatboy.rss")
 
 begin
   config = YAML.load_file(File.expand_path("~/.twitter_config.yml"))
